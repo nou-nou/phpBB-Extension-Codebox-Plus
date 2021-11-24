@@ -60,7 +60,7 @@ class main_listener implements EventSubscriberInterface
             'core.posting_modify_template_vars'			=> 'posting_event',
             'core.viewtopic_post_rowset_data'			=> 'viewtopic_event',
             'core.modify_format_display_text_after'		=> 'message_parser_event',
-            'core.modify_text_for_display_after'		=> 'message_parser_event',
+            'core.modify_text_for_display_after'		=> 'functions_content_event',
         );
     }
 	
@@ -96,7 +96,7 @@ class main_listener implements EventSubscriberInterface
 			$text = preg_replace_callback('#<div class="codebox" title="' . preg_quote($this->user->lang['CODEBOX_PLUS_TITLE']) . '" data-language="(.*?)" data-filename="(.*?)"><p>.*?</p><code>(.*?)</code></div>#msi',
 						function ($arg) use ($post_id, &$part)
 						{
-							return $this->codebox_template(preg_replace('#\<br\\s*/?\>#msi', "\n", $arg[3]), $arg[1], $arg[2], $post_id, ++$part);
+							return $this->codebox_template(preg_replace('#\<br\\s*/?\>#msi', "", $arg[3]), $arg[1], $arg[2], $post_id, ++$part);
 						},
 						$text);
 			//$text = preg_replace('#<div class="codebox" title="' . preg_quote($this->user->lang['CODEBOX_PLUS_TITLE']) . '" data-language="(.*?)" data-filename="(.*?)"><p>.*?</p><code>(.*?)</code></div>#msie', "\$this->codebox_template(preg_replace('#\<br\\s*/?\>#msi', '\n', '\$3'), '\$1', '\$2', \$post_id, ++\$part)", $text);
@@ -130,29 +130,27 @@ class main_listener implements EventSubscriberInterface
 	
 	/*
 	* Event: core.viewtopic_post_rowset_data (viewtopic.php)
+	* Adjusted according to online instructions WSL
 	*/
-    public function viewtopic_event($event)
-    {
+	
+	public function viewtopic_event($event)
+	{
 		if (isset($event['rowset_data']))
 		{
-			$rowset_data = $event['rowset_data'];
-			$post_text = isset($rowset_data['post_text']) ? $rowset_data['post_text'] : '';
-			$bbcode_uid = isset($rowset_data['bbcode_uid']) ? $rowset_data['bbcode_uid'] : '';
-			$post_id = isset($rowset_data['post_id']) ? $rowset_data['post_id'] : 0;
-			$part = 0;
-			$post_text = preg_replace_callback("#\[codebox=(.*?) file=(.*?):$bbcode_uid\](.*?)\[/codebox:$bbcode_uid\]#msi",
-							function ($arg) use ($post_id, &$part)
-							{
-								return $this->codebox_template($arg[3], $arg[1], $arg[2], $post_id, ++$part);
-							},
-							$post_text);
-			//$post_text = preg_replace("#\[codebox=(.*?) file=(.*?):$bbcode_uid\](.*?)\[/codebox:$bbcode_uid\]#msie", "\$this->codebox_template('\$3', '\$1', '\$2', \$post_id, ++\$part)", $post_text);
-			
-			if (isset($rowset_data['post_text']) && $part > 0)
-			{
+			    $rowset_data = $event['rowset_data'];
+			    $post_text = isset($rowset_data['post_text']) ? $rowset_data['post_text'] : '';
+			    $post_id = isset($rowset_data['post_id']) ? $rowset_data['post_id'] : 0;
+			    $callback = function($arg) use ($post_id)
+			    {
+				return $arg[1] . "($post_id)" . $arg[2] . $arg[3];
+			    };
+			    $post_text = preg_replace_callback("#(<CODEBOX codebox=\".*?\" file=\".*?\"><s>\[Codebox=.*? file=.*?\]</s>)(.*?)(<e>\[/Codebox\]</e></CODEBOX>)#msi", $callback, $post_text, -1, $part);
+
+			    if (isset($rowset_data['post_text']) && $part > 0)
+			    {
 				$rowset_data['post_text'] = $post_text;
 				$event['rowset_data'] = $rowset_data;
-			}
+			    }
 		}
 	}
 	
@@ -211,7 +209,7 @@ class main_listener implements EventSubscriberInterface
 		}
 		
 		$re .= '</div>';
-		$re .= '<div><div style="display: ' . (($lang != 'NULL' && !$this->expanded) ? 'none' : 'inline') . ';">';
+		$re .= '<div><div style="display: ' . (($lang != 'NULL' && !$this->expanded) ? 'block;height:auto; max-height: 600px; overflow:auto' : 'inline') . ';">';
 		
 		if ($lang != 'NULL')
 		{
@@ -223,9 +221,30 @@ class main_listener implements EventSubscriberInterface
 		}
 		
 		$re .= '</div></div>';
-		$re .= '<div class="codebox_plus_footer">' . $this->user->lang['CODEBOX_PLUS_GESHI'] . ' &copy; ' . $this->user->lang['CODEBOX_PLUS_TITLE'] . '</div></div>';
+		$re .= '<div class="codebox_plus_footer">' . '</div></div>';
 		
 		return $re;
+	}
+	
+	/*
+	* Added according to online instructions WSL
+	*/
+	
+	public function functions_content_event($event)
+	{
+		if (isset($event['text']))
+		{
+		    $text = $event['text'];
+		    $post_id = 0;
+		    $part = 0;
+		    $callback = function($arg) use ($post_id, &$part)
+		    {
+			//return $this->codebox_template(preg_replace('#\<br\\s*/?\>#msi', "\n", $arg[4]), $arg[1], $arg[2], $arg[3], ++$part);
+			return $this->codebox_template(preg_replace('#\<br\\s*/?\>#msi', "", $arg[4]), $arg[1], $arg[2], $arg[3], ++$part);
+		    };
+		    $text = preg_replace_callback('#<div class="codebox" title="' . preg_quote($this->user->lang['CODEBOX_PLUS_TITLE']) . '" data-language="(.*?)" data-filename="(.*?)"><p>.*?</p><code>\(([0-9]+)\)(.*?)</code></div>#msi', $callback, $text);
+		    $event['text'] = $text;
+		}
 	}
 	
 	/*
@@ -255,8 +274,8 @@ class main_listener implements EventSubscriberInterface
 			$geshi->set_header_type(GESHI_HEADER_DIV);
 			$geshi->enable_line_numbers(GESHI_NORMAL_LINE_NUMBERS);
 			$geshi->enable_keyword_links(false);
-			$geshi->set_line_style('margin-left:20px;', false);
-			$geshi->set_code_style('border-bottom: dotted 1px #cccccc;', false);
+			$geshi->set_line_style('margin-left:10px;', false);
+			$geshi->set_code_style('border-bottom: dotted 1px #3a3a3a;', false);
 			$geshi->set_line_ending("\n");
 			$code = str_replace("\n", "", $geshi->parse_code());
 		}

@@ -1,0 +1,13 @@
+<!-- IF CODEBOX_PLUS_IN_POSTING -->
+	<select name="addbbcode_codeboxplus" onchange="bbfontstyle('[Codebox=' + this.form.addbbcode_codeboxplus.options[this.form.addbbcode_codeboxplus.selectedIndex].value + ' file={L_CODEBOX_PLUS_DEFAULT_FILENAME}.' + this.form.addbbcode_codeboxplus.options[this.form.addbbcode_codeboxplus.selectedIndex].className.substring(9) + ']', '[/Codebox]');this.form.addbbcode_codeboxplus.selectedIndex = 0;" title="{L_CODEBOX_PLUS_SELECT}">
+		<option value="0" selected="selected" style="display: none">{L_CODEBOX_PLUS_SELECT}</option>
+		<option value="lua" class="code_etx_lua" title="{L_CODEBOX_PLUS_SYNTAX_LUA_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_LUA}</option>
+		<option value="python" class="code_etx_py" title="{L_CODEBOX_PLUS_SYNTAX_PYTHON_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_PYTHON}</option>
+		<option value="cpp" class="code_etx_cpp" title="{L_CODEBOX_PLUS_SYNTAX_CPP_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_CPP}</option>
+		<option value="hlsl" class="code_etx_cg" title="{L_CODEBOX_PLUS_SYNTAX_HLSL_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_HLSL}</option>
+		<option value="text" class="code_etx_txt" title="{L_CODEBOX_PLUS_SYNTAX_TEXT_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_TEXT}</option>
+		<option value="xml" class="code_etx_xml" title="{L_CODEBOX_PLUS_SYNTAX_XML_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_XML}</option>
+		<option value="bash" class="code_etx_bsh" title="{L_CODEBOX_PLUS_SYNTAX_BASH_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_BASH}</option>
+		<option value="usd" class="code_etx_usda" title="{L_CODEBOX_PLUS_SYNTAX_USD_EXPLAIN}">{L_CODEBOX_PLUS_SYNTAX_USD}</option>
+	</select>
+<!-- ENDIF -->

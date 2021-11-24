@@ -196,7 +196,10 @@ class main
 
 		//- Process post data
 		// Collect code
-		preg_match_all("#\[codebox=[a-z0-9_-]+ file=(.*?):" . $post_data['bbcode_uid'] . "\](.*?)\[/codebox:" . $post_data['bbcode_uid'] . "\]#msi", $post_data['post_text'], $code_data);
+		//WSL adjust
+		//preg_match_all("#\[codebox=[a-z0-9_-]+ file=(.*?):" . $post_data['bbcode_uid'] . "\](.*?)\[/codebox:" . $post_data['bbcode_uid'] . "\]#msi", $post_data['post_text'], $code_data);
+		//preg_match_all('#<CODEBOX codebox="[a-z0-9_-]+" file=".*"><s>\[Codebox=[a-z0-9_-]+ file=(.*)\]<\/s>(.*?)<e>\[\/Codebox]<\/e><\/CODEBOX>#msi', $post_data['post_text'], $code_data);
+		preg_match_all('#<CODEBOX codebox="[a-z0-9_-]+" file=".*?"><s>\[Codebox=[a-z0-9_-]+ file=(.*?)\]<\/s>(.*?)<e>\[\/Codebox]<\/e><\/CODEBOX>#msi', $post_data['post_text'], $code_data);
 		
 		if (sizeof($code_data[2]) >= $part)
 		{
@@ -254,6 +257,8 @@ class main
 		$str_from = array('&lt;', '&gt;', '&#91;', '&#93;', '&#40;', '&#41;', '&#46;', '&#58;', '&#058;', '&#39;', '&#039;', '&quot;', '&amp;');
 		$str_to = array('<', '>', '[', ']', '(', ')', '.', ':', ':', "'", "'", '"', '&');
 		$code = str_replace($str_from, $str_to, $code);
+		//WSL adjust
+		$code = str_replace("<br/>", "", $code);
 		
 		return $code;
 	}

@@ -1529,6 +1529,7 @@ class GeSHi {
                 'smarty' => array(),
                 'tcl' => array('tcl'),
                 'text' => array('txt'),
+                'usd' => array('usd', 'usda', 'usdb', 'usdz'),
                 'vb' => array('bas'),
                 'vbnet' => array(),
                 'visualfoxpro' => array(),
